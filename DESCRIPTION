@@ -1,0 +1,21 @@
+Package: nnic
+Title: Statistical-modelling approach to Neural Networks
+Version: 0.0.0.9000
+Authors@R: 
+    person("Andrew",
+           "McInerney",
+           role = c("aut", "cre"),
+           email = "andrew.mcinerney@ul.ie",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: Provides various functions that allow for a statistical-modelling
+    approach to neural networks. This includes the use of the top-down and
+    bottom-up model selection methods, profile likelihood functions for network
+    weights, and variable importance.
+License: `use_mit_license()`, `use_gpl3_license()` or friends to
+    pick a license
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Imports: 
+        nnet, optimx

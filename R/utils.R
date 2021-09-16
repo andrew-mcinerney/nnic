@@ -1,0 +1,90 @@
+#' Sigmoid activation function
+#'
+#'
+#' @param x Input
+#' @return Sigmoid function
+#' @export
+sigmoid = function(x) 1/(1+exp(-x))
+
+
+#' Selects which hidden unit to remove based off of BIC
+#'
+#' This function calculates the influence after of each hidden unit in the model
+#' and determines which unit has the least influence on the output
+#'
+#' @param W Weight vector
+#' @param q Number of hidden nodes in model
+#' @param dataX Matrix of inputs
+#' @param Y Output vector
+#' @param inf_crit Information criterion
+#' @return The node to remove
+#' @export
+remove_unit = function(dataX, Y, W, q, inf_crit = 'BIC'){
+  n = nrow(dataX)
+  p = ncol(dataX)
+  k = ((p+2)*q + 1)
+  dataX = cbind(rep(1, n), dataX)
+  influence = rep(NA, q)
+  if(length(W) == K){
+    for(j in 1:q){
+      W_removed = W
+      W_removed[((p + 1)*q + j + 1)] = 0
+
+      h_input = dataX %*% t(matrix(W_removed[1:((p + 1)*q)], nrow = q, byrow = T))
+      h_act = cbind(rep(1, n), sigmoid(h_input))
+
+      y_hat = h_act %*% matrix(W_removed[c((length(W_removed) - unit):length(W_removed))], ncol = 1)
+
+      SSE = sum((y_hat - Y)^2)
+      sigma2 = SSE/n
+      log_likelihood = (-n/2)*log(2*pi*sigma2) - SSE/(2*sigma2)
+      influence[j] = ifelse(inf_crit == 'BIC', -2*log_likelihood + log(n)*K,
+                            ifelse(inf_crit == 'AIC', -2*log_likelihood + 2*K,
+                                   ifelse(inf_crit == 'AICc', -2*log_likelihood + 2*K*(n/(n - K - 1)), NA)))
+    }
+
+    return(which.min(influence))
+
+  }else{
+    return(print('Error: Incorrect number of weights for NN structure'))
+  }
+}
+
+
+#'Compile to function to compare weights
+#' @export
+weight_recover = function(W_true, W_pred, q, k){
+  true  = cbind(matrix(W_true[1:(q*(k + 1))], byrow=T, ncol=(k + 1)), W_true[((k + 1)*h + 2):((k + 1)*h + h + 1)])
+  pred  = cbind(matrix(W_pred[1:(q*(k + 1))], byrow=T, ncol=(k + 1)), W_pred[((k + 1)*h + 2):((k + 1)*h + h + 1)])
+
+  bias_t = W_true[q*(k + 1) + 1]
+  bias_p = W_pred[q*(k + 1) + 1]
+
+  mat = matrix(NA, nrow = q, ncol = q*2)
+
+  for(i in 1:q){
+    mat[i,]=c(rowSums((matrix(rep(pred[i,], q),nrow = q, byrow = T) - true)^2),
+              rowSums((matrix(rep(-pred[i,], q), nrow = q, byrow = T) - true)^2))
+  }
+
+  ind = apply(mat, 1 , which.min)
+
+  for( i in 1:q){
+    if(ind[i] %in% c((q + 1):(2*q))){
+      ind[i] = ind[i] - q
+      bias_p = bias_p + pred[i, ncol(pred)]
+      pred[i,] = -pred[i,]
+    }
+  }
+  predW = pred[order(ind),]
+  predW_vec = c(t(predW[,1:(k + 1)]), bias_p, t(predW[, (k + 2)]))
+  return(predW_vec)
+}
+
+
+#' @export
+my_runif = function(n = 1, unif = 1){
+  x = runif(n, 0.5, unif)
+  y = sample(c(-1, 1), n, replace=T)
+  return(x*y)
+}
