@@ -13,25 +13,26 @@
 #' @param method Procedure
 #' @return Optimal number of hidden units
 #' @export
-nn_model_sel = function(X, Y, q_max, n_iter, inf_crit = 'BIC', unif = 1,
+nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', unif = 1,
                         method = 'top_down', plot = F){
 
   df = as.data.frame(cbind(X, Y))
   colnames(df)[ncol(df)] = 'Y'
 
-  inf_crit_matrix = matrix(NA, nrow = q_max, ncol = n_iter)
+  inf_crit_matrix <- matrix(NA, nrow = (q_max - q_min + 1), ncol = n_iter)
+  rownames(inf_crit_matrix) <- as.character(q_min:q_max)
 
   n = nrow(X)
   p = ncol(X)
 
-  W_opt = vector(mode = "list", length = q_max)
+  W_opt = vector(mode = "list", length = (q_max - q_min + 1))
 
   if(method == 'bottom_up'){
 
-    for(q in 1:q_max){
+    for(q in q_min:q_max){
       k = (p + 1)*q + (q + 1)
 
-      if(q == 1){
+      if(q == q_min){
         weight_matrix_init = matrix(runif(n_iter*k, min = -unif, max = unif),
                                     ncol = k)
       }else{
@@ -61,13 +62,13 @@ nn_model_sel = function(X, Y, q_max, n_iter, inf_crit = 'BIC', unif = 1,
     }
   } else if(method == 'top_down'){
 
-    for(q in q_max:1){
+    for(q in q_max:q_min){
       k = (p + 1)*q + (q + 1)
 
       if(q == q_max){
         weight_matrix_init = matrix(runif(n_iter*k, min = -unif, max = unif), ncol = k)
       }else{
-        weight_matrix_init = weight_matrix.r
+        weight_matrix_init = weight_matrix_r
       }
 
       weight_matrix = matrix(rep(NA, n_iter*k), ncol = k)
@@ -88,35 +89,36 @@ nn_model_sel = function(X, Y, q_max, n_iter, inf_crit = 'BIC', unif = 1,
 
       remove_node = apply(X = weight_matrix, 1, remove_unit, dataX = X, Y = Y, q = q, inf_crit = inf_crit)
 
-      weight_matrix.r = matrix(NA, nrow = n_iter, ncol = k - p - 2)
+      weight_matrix_r = matrix(NA, nrow = n_iter, ncol = k - p - 2)
 
       for(f in 1:n_iter){
         unit_to_remove = remove_node[f]
-        weight_matrix.r[f,] = weight_matrix[f,][-c(((unit_to_remove - 1)*(p + 1) + 1):(unit_to_remove*(p + 1)),(q*(p + 1) + unit_to_remove + 1))]
+        weight_matrix_r[f,] = weight_matrix[f,][-c(((unit_to_remove - 1)*(p + 1) + 1):(unit_to_remove*(p + 1)),(q*(p + 1) + unit_to_remove + 1))]
       }
     }
   }else{
     print('Error: Method not valid')
   }
 
-  inf_crit_df <- as.data.frame(inf_crit_matrix)
-  inf_crit_df$id <- 1:nrow(inf_crit_df)
-  colnames(inf_crit_df) = c(as.character(1:n_iter), 'id')
-  plot_df <- reshape2::melt(inf_crit_df, id.var = "id")
-  colnames(plot_df)[2] = 'n_iter'
+  #plotting inf_crit_matrix using ggplot2
+  if(plot == TRUE){
+    inf_crit_df <- as.data.frame(inf_crit_matrix)
+    inf_crit_df$id <- 1:nrow(inf_crit_df)
+    colnames(inf_crit_df) = c(as.character(1:n_iter), 'id')
+    plot_df <- reshape2::melt(inf_crit_df, id.var = "id")
+    colnames(plot_df)[2] = 'n_iter'
 
-  p <- ggplot2::ggplot(plot_df, aes(x = id, y = value, group = n_iter, colour = n_iter))  +
-    geom_point() +
-    geom_line(aes(lty = n_iter)) + labs(x = 'Number of Hidden Units', y = paste(inf_crit)) +
-    scale_x_continuous(breaks = c(1:q_max)) + ggtitle(paste0(method, ' approach')) +
-    theme(plot.title = element_text(hjust = 0.5), text = element_text(size=17))
+    p <- ggplot2::ggplot(plot_df, ggplot2::aes(x = id, y = value, group = n_iter, colour = n_iter))  +
+      ggplot2::geom_point() +
+      ggplot2::geom_line(ggplot2::aes(lty = n_iter)) + ggplot2::labs(x = 'Number of Hidden Units', y = paste(inf_crit)) +
+      ggplot2::scale_x_continuous(breaks = c(q_min:q_max)) + ggplot2::ggtitle(paste0(method, ' approach')) +
+      ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5), text = ggplot2::element_text(size=17))
 
-  if(plot == TRUE) print(p)
-
+    print(p)
+  }
 
   return(list('matrix' = inf_crit_matrix, 'min' = apply(inf_crit_matrix, 1, min),
-                'weights_min' = W_opt, 'which_min' = which.min(apply(inf_crit_matrix, 1, min)),
-                'plot' = p))
+              'weights_min' = W_opt, 'which_min' = which.min(apply(inf_crit_matrix, 1, min))))
 }
 
 
