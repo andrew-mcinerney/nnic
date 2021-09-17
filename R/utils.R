@@ -19,13 +19,13 @@ sigmoid = function(x) 1/(1+exp(-x))
 #' @param inf_crit Information criterion
 #' @return The node to remove
 #' @export
-remove_unit = function(dataX, Y, W, q, inf_crit = 'BIC'){
+remove_unit = function(W, dataX, Y, q, inf_crit = 'BIC'){
   n = nrow(dataX)
   p = ncol(dataX)
-  k = ((p+2)*q + 1)
+  k = ((p + 2)*q + 1)
   dataX = cbind(rep(1, n), dataX)
   influence = rep(NA, q)
-  if(length(W) == K){
+  if(length(W) == k){
     for(j in 1:q){
       W_removed = W
       W_removed[((p + 1)*q + j + 1)] = 0
@@ -33,15 +33,16 @@ remove_unit = function(dataX, Y, W, q, inf_crit = 'BIC'){
       h_input = dataX %*% t(matrix(W_removed[1:((p + 1)*q)], nrow = q, byrow = T))
       h_act = cbind(rep(1, n), sigmoid(h_input))
 
-      y_hat = h_act %*% matrix(W_removed[c((length(W_removed) - unit):length(W_removed))], ncol = 1)
+      y_hat = h_act %*% matrix(W_removed[c((length(W_removed) - q):length(W_removed))], ncol = 1)
 
       SSE = sum((y_hat - Y)^2)
       sigma2 = SSE/n
       log_likelihood = (-n/2)*log(2*pi*sigma2) - SSE/(2*sigma2)
-      influence[j] = ifelse(inf_crit == 'BIC', -2*log_likelihood + log(n)*K,
-                            ifelse(inf_crit == 'AIC', -2*log_likelihood + 2*K,
-                                   ifelse(inf_crit == 'AICc', -2*log_likelihood + 2*K*(n/(n - K - 1)), NA)))
+      influence[j] = ifelse(inf_crit == 'BIC', -2*log_likelihood + log(n)*k,
+                            ifelse(inf_crit == 'AIC', -2*log_likelihood + 2*k,
+                                   ifelse(inf_crit == 'AICc', -2*log_likelihood + 2*k*(n/(n - k - 1)), NA)))
     }
+
 
     return(which.min(influence))
 

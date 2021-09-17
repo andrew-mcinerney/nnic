@@ -4,14 +4,14 @@
 \alias{remove_unit}
 \title{Selects which hidden unit to remove based off of BIC}
 \usage{
-remove_unit(dataX, Y, W, q, inf_crit = "BIC")
+remove_unit(W, dataX, Y, q, inf_crit = "BIC")
 }
 \arguments{
+\item{W}{Weight vector}
+
 \item{dataX}{Matrix of inputs}
 
 \item{Y}{Output vector}
-
-\item{W}{Weight vector}
 
 \item{q}{Number of hidden nodes in model}
 

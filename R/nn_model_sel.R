@@ -8,7 +8,7 @@
 #' @param n_iter Number of iterations
 #' @param X Matrix of inputs
 #' @param Y Output vector
-#' @param inf_crit Informtation criterion
+#' @param inf_crit Information criterion
 #' @param unif Uniform distribution
 #' @param method Procedure
 #' @return Optimal number of hidden units
@@ -60,7 +60,7 @@ nn_model_sel = function(X, Y, q_max, n_iter, inf_crit = 'BIC', unif = 1,
       W_opt[[q]] = weight_matrix[which.min(inf_crit_matrix[q,]),]
     }
     return(list('matrix' = inf_crit_matrix, 'min' = apply(inf_crit_matrix, 1, min),
-                'weights_min' = weight_opt, 'which_min' = which.min(apply(IC.m, 1, min))))
+                'weights_min' = W_opt, 'which_min' = which.min(apply(inf_crit_matrix, 1, min))))
 
   } else if(method == 'top_down'){
 
@@ -87,9 +87,9 @@ nn_model_sel = function(X, Y, q_max, n_iter, inf_crit = 'BIC', unif = 1,
                                           ifelse(inf_crit == 'BIC', (log(n)*k - 2*log_likelihood),
                                                  ifelse(inf_crit == 'AICc', (2*k*(n/(n-k-1)) - 2*log_likelihood),NA)))
       }
-      weight_opt[[q]] = weight_matrix[which.min(inf_crit_matrix[q,]),]
+      W_opt[[q]] = weight_matrix[which.min(inf_crit_matrix[q,]),]
 
-      remove_node = apply(X = weight_matrix, 1, remove_unit, unit = q, dataX = X, Y = Y, inf_crit = inf_crit)
+      remove_node = apply(X = weight_matrix, 1, remove_unit, dataX = X, Y = Y, q = q, inf_crit = inf_crit)
 
       weight_matrix.r = matrix(NA, nrow = n_iter, ncol = k - p - 2)
 
@@ -99,7 +99,7 @@ nn_model_sel = function(X, Y, q_max, n_iter, inf_crit = 'BIC', unif = 1,
       }
     }
     return(list('matrix' = inf_crit_matrix, 'min' = apply(inf_crit_matrix, 1, min),
-                'weights_min' = weight_opt, 'which_min' = which.min(apply(inf_crit_matrix, 1, min))))
+                'weights_min' = W_opt, 'which_min' = which.min(apply(inf_crit_matrix, 1, min))))
   }else{
     print('Error: Method not valid')
   }

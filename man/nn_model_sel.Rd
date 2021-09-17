@@ -23,7 +23,7 @@ nn_model_sel(
 
 \item{n_iter}{Number of iterations}
 
-\item{inf_crit}{Informtation criterion}
+\item{inf_crit}{Information criterion}
 
 \item{unif}{Uniform distribution}
 
