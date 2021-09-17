@@ -89,3 +89,33 @@ my_runif = function(n = 1, unif = 1){
   y = sample(c(-1, 1), n, replace=T)
   return(x*y)
 }
+
+#Function is required for nn_fit optimization
+#' Calculates normal log-likelihood of neural network
+#'
+#' @param W Weight vector
+#' @param X Input data
+#' @param Y Output data
+#' @param q Number of hidden units
+#' @return log-likelihood value
+#' @export
+log_likelihood = function(W, X, Y, q){
+  n = nrow(X)
+  p = ncol(X)
+
+  if(length(W) == ((p+2)*q + 1)){
+    X = cbind(rep(1, n), X)
+
+    h_input = X %*% t(matrix(W[1:((p + 1)*q)], nrow = q, byrow = T))
+
+    h_act = cbind(rep(1, n), sigmoid(h_input))
+
+    y_hat = h_act %*% matrix(W[c((length(W) - q):length(W))], ncol = 1)
+    SSE = sum((y_hat - Y)^2)
+    sigma2 = SSE/n
+
+    return(-((-n/2)*log(2*pi*sigma2) - SSE/(2*sigma2)))
+  }else{
+    return(print('Error: Incorrect number of weights for NN structure'))
+  }
+}

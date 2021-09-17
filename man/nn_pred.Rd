@@ -11,7 +11,7 @@ nn_pred(X, W, q)
 
 \item{W}{Weight vector}
 
-\item{q}{Number of hidden unitd}
+\item{q}{Number of hidden units}
 }
 \value{
 Prediction for given inputs
