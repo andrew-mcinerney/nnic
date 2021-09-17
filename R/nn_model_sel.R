@@ -14,7 +14,7 @@
 #' @return Optimal number of hidden units
 #' @export
 nn_model_sel = function(X, Y, q_max, n_iter, inf_crit = 'BIC', unif = 1,
-                        method = 'top_down'){
+                        method = 'top_down', plot = F){
 
   df = as.data.frame(cbind(X, Y))
   colnames(df)[ncol(df)] = 'Y'
@@ -59,9 +59,6 @@ nn_model_sel = function(X, Y, q_max, n_iter, inf_crit = 'BIC', unif = 1,
       }
       W_opt[[q]] = weight_matrix[which.min(inf_crit_matrix[q,]),]
     }
-    return(list('matrix' = inf_crit_matrix, 'min' = apply(inf_crit_matrix, 1, min),
-                'weights_min' = W_opt, 'which_min' = which.min(apply(inf_crit_matrix, 1, min))))
-
   } else if(method == 'top_down'){
 
     for(q in q_max:1){
@@ -98,11 +95,28 @@ nn_model_sel = function(X, Y, q_max, n_iter, inf_crit = 'BIC', unif = 1,
         weight_matrix.r[f,] = weight_matrix[f,][-c(((unit_to_remove - 1)*(p + 1) + 1):(unit_to_remove*(p + 1)),(q*(p + 1) + unit_to_remove + 1))]
       }
     }
-    return(list('matrix' = inf_crit_matrix, 'min' = apply(inf_crit_matrix, 1, min),
-                'weights_min' = W_opt, 'which_min' = which.min(apply(inf_crit_matrix, 1, min))))
   }else{
     print('Error: Method not valid')
   }
+
+  inf_crit_df <- as.data.frame(inf_crit_matrix)
+  inf_crit_df$id <- 1:nrow(inf_crit_df)
+  colnames(inf_crit_df) = c(as.character(1:n_iter), 'id')
+  plot_df <- reshape2::melt(inf_crit_df, id.var = "id")
+  colnames(plot_df)[2] = 'n_iter'
+
+  p <- ggplot2::ggplot(plot_df, aes(x = id, y = value, group = n_iter, colour = n_iter))  +
+    geom_point() +
+    geom_line(aes(lty = n_iter)) + labs(x = 'Number of Hidden Units', y = paste(inf_crit)) +
+    scale_x_continuous(breaks = c(1:q_max)) + ggtitle(paste0(method, ' approach')) +
+    theme(plot.title = element_text(hjust = 0.5), text = element_text(size=17))
+
+  if(plot == TRUE) print(p)
+
+
+  return(list('matrix' = inf_crit_matrix, 'min' = apply(inf_crit_matrix, 1, min),
+                'weights_min' = W_opt, 'which_min' = which.min(apply(inf_crit_matrix, 1, min)),
+                'plot' = p))
 }
 
 

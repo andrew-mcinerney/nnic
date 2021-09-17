@@ -11,7 +11,8 @@ nn_model_sel(
   n_iter,
   inf_crit = "BIC",
   unif = 1,
-  method = "top_down"
+  method = "top_down",
+  plot = F
 )
 }
 \arguments{
