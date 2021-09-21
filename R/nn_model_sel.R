@@ -118,7 +118,7 @@ nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', un
   }
 
   return(list('matrix' = inf_crit_matrix, 'min' = apply(inf_crit_matrix, 1, min),
-              'weights_min' = W_opt, 'which_min' = which.min(apply(inf_crit_matrix, 1, min))))
+              'weights_min' = W_opt, 'which_min' = as.numeric(which.min(apply(inf_crit_matrix, 1, min)))))
 }
 
 
