@@ -1,11 +1,19 @@
+#' Profile likelihood: function to find optimal weights when fixing a parameter
+#'
+#' @param X Data
+#' @param Y Response
+#' @param W Weight vector
+#' @param q number of hidden units
+#' @param ind index of weight for profiling
+#' @param val value for profiling
+#' @return Profile likelihood weights
 #' @export
 prof_likelihood = function(X, Y, W, q, ind, val){
 
   #Finds optimal W (length k-1) for given weight and value
-  opt = optimx::optimx(par = W, fn = prof_likelihood_pred, method = 'BFGS',
-                       control = list(dowarn = FALSE), X = X,Y = Y, q = q,
-                       ind = ind, val = val)
-  optW = as.numeric(unlist(opt[1:length(W)]))
+  opt = optim(par = W, fn = prof_likelihood_pred, method = 'BFGS',
+              X = X,Y = Y, q = q, ind = ind, val = val)
+  optW = opt$par
   #Adds the predefined weight into the weight vector
   new = c(optW,val)
   id  = c(seq_along(optW), ind-0.5)
@@ -17,7 +25,7 @@ prof_likelihood = function(X, Y, W, q, ind, val){
 }
 
 
-#' Profile likelihood: function to calculate likelihood
+#' Profile likelihood: function to calculate likelihood when parameter is fixed
 #'
 #' @param X Data
 #' @param Y Response
@@ -36,10 +44,10 @@ prof_likelihood_pred = function(X, Y, W, q, ind, val){
   W_new = new[order(id)]
 
   if(length(W_new) == ((p + 2)*q + 1)){
-    X = cbind(rep(1, N), X)
+    X = cbind(rep(1, n), X)
     h_input = X %*% t(matrix(W_new[1:((p + 1)*q)], nrow = q, byrow = T))
 
-    h_act = cbind(rep(1, N), sigmoid(h_input))
+    h_act = cbind(rep(1, ), sigmoid(h_input))
     y_hat = h_act %*% matrix(W_new[c((length(W_new) - q):length(W_new))], ncol=1)
 
     SSE = sum((y_hat - Y)^2)

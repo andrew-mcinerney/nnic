@@ -15,7 +15,7 @@ var_imp = function(X, Y, ind, n_iter, W, q, unif = 1){
   df = as.data.frame(cbind(X[,-i], Y))
   colnames(df)[ncol(df)] = 'Y'
   n = nrow(X)
-  inf_crit = rep(NA, n)
+  inf_crit_vec = rep(NA, n_iter)
 
   k = (ncol(X))*q + (q + 1)
   remove_vec = rep(NA, q)
@@ -29,7 +29,7 @@ var_imp = function(X, Y, ind, n_iter, W, q, unif = 1){
 
   weight_matrix = matrix(rep(NA,n*k), ncol = k)
 
-  log_likelihood = rep(NA, n)
+  log_likelihood = rep(NA, n_iter)
 
   for(i in 1:n_iter){
     nn_model =  nnet::nnet(Y~., data = df, size = q, trace = F, linout = T, Wts = weight_matrix_init[i,])
@@ -38,7 +38,7 @@ var_imp = function(X, Y, ind, n_iter, W, q, unif = 1){
     SSE = sum((df$Y - nn_model$fitted.values)^2)
     sigma2 = SSE/n
     log_likelihood[i] = (-n/2)*log(2*pi*sigma2) - SSE/(2*sigma2)
-    inf_crit[i] = log(n)*k - 2*log_likelihood[i]
+    inf_crit_vec[i] = log(n)*k - 2*log_likelihood[i]
   }
 
   full_model = nn_pred(X, W, q)
@@ -52,7 +52,7 @@ var_imp = function(X, Y, ind, n_iter, W, q, unif = 1){
   deg_freedom = k_full - k
   p_value = pchisq(likelihood_ratio, deg_freedom, lower.tail = F)
 
-  return(list('inf_crit' = inf_crit, 'inf_crit_min' = min(inf_crit),
+  return(list('inf_crit' = inf_crit_vec, 'inf_crit_min' = min(inf_crit_vec),
               'BIC_full' = inf_crit_full, 'loglik' = max(log_likelihood),
               'loglik_full' = log_likelihood_full, 'df' = deg_freedom,
               'likelihood_ratio' = likelihood_ratio, 'p_val' = p_value))
