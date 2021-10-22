@@ -54,9 +54,9 @@ nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', un
         sigma2 = SSE/n
         log_likelihood = (-n/2)*log(2*pi*sigma2) - SSE/(2*sigma2)
 
-        inf_crit_matrix[q, iter] = ifelse(inf_crit == 'AIC', (2*k - 2*log_likelihood),
-                                          ifelse(inf_crit == 'BIC', (log(n)*k - 2*log_likelihood),
-                                                 ifelse(inf_crit == 'AICc', (2*k*(n/(n - k - 1)) - 2*log_likelihood),NA)))
+        inf_crit_matrix[q, iter] = ifelse(inf_crit == 'AIC', (2*(k+1) - 2*log_likelihood),
+                                          ifelse(inf_crit == 'BIC', (log(n)*(k+1) - 2*log_likelihood),
+                                                 ifelse(inf_crit == 'AICc', (2*(k+1)*(n/(n - (k+1) - 1)) - 2*log_likelihood),NA)))
       }
       W_opt[[q]] = weight_matrix[which.min(inf_crit_matrix[q,]),]
     }
@@ -81,9 +81,9 @@ nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', un
         SSE = sum((df$Y - nn_model$fitted.values)^2)
         sigma2 = SSE/n
         log_likelihood = (-n/2)*log(2*pi*sigma2) - SSE/(2*sigma2)
-        inf_crit_matrix[q, iter] = ifelse(inf_crit == 'AIC', (2*k - 2*log_likelihood),
-                                          ifelse(inf_crit == 'BIC', (log(n)*k - 2*log_likelihood),
-                                                 ifelse(inf_crit == 'AICc', (2*k*(n/(n-k-1)) - 2*log_likelihood),NA)))
+        inf_crit_matrix[q, iter] = ifelse(inf_crit == 'AIC', (2*(k+1) - 2*log_likelihood),
+                                          ifelse(inf_crit == 'BIC', (log(n)*(k+1) - 2*log_likelihood),
+                                                 ifelse(inf_crit == 'AICc', (2*(k+1)*(n/(n-(k+1)-1)) - 2*log_likelihood),NA)))
       }
       W_opt[[q]] = weight_matrix[which.min(inf_crit_matrix[q,]),]
 
