@@ -80,7 +80,7 @@ nn_effect = function(X, ind, W, q, val = rep(0, ncol(X)), length = 100, range = 
   id = c(1:ncol(X_val), ind - 0.5)
   X_new = new[, order(id)]
 
-  pred = nn_pred(X_new, W, q) + rnorm(length,0,0)
+  pred = nn_pred(X_new, W, q) + rnorm(length, 0, sigma)
 
   return(list('x' = X_ind, 'pred' = pred))
 }
