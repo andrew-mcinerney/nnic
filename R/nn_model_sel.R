@@ -14,7 +14,7 @@
 #' @return Optimal number of hidden units
 #' @export
 nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', unif = 1,
-                        method = 'top_down', plot = F){
+                        method = 'top_down', plot = F, ...){
 
   df = as.data.frame(cbind(X, Y))
   colnames(df)[ncol(df)] = 'Y'
@@ -46,7 +46,7 @@ nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', un
 
       for(iter in 1:n_iter){
         nn_model =  nnet::nnet(Y~., data = df, size = q, trace = FALSE,
-                               linout = T, Wts = weight_matrix_init[iter,])
+                               linout = T, Wts = weight_matrix_init[iter,], ...)
 
         weight_matrix[iter,] = nn_model$wts
 
@@ -75,7 +75,7 @@ nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', un
 
       for(iter in 1:n_iter){
         nn_model =  nnet::nnet(Y~., data = df, size = q, trace = F, linout = T,
-                               Wts=weight_matrix_init[iter,])
+                               Wts=weight_matrix_init[iter,], ...)
         weight_matrix[iter,] = nn_model$wts
 
         SSE = sum((df$Y - nn_model$fitted.values)^2)

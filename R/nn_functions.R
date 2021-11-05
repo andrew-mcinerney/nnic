@@ -27,7 +27,7 @@ nn_pred = function(X, W, q){
 }
 
 
-#' Neural network fitting function using optimx
+#' Neural network fitting function using optim
 #'
 #'
 #' @param X Input data

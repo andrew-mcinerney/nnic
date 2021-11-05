@@ -70,7 +70,7 @@ var_imp = function(X, Y, ind, n_iter, W, q, unif = 1){
 #' @param range range of values to be computed
 #' @return Effect of variable
 #' @export
-nn_effect = function(X, ind, W, q, val = rep(0, ncol(X)), length = 100, range = c(-3, 3)){
+nn_effect = function(X, ind, W, q, val = rep(0, ncol(X)), length = 100, range = c(-3, 3), sigma = 0){
 
   val = val[-ind]
   X_ind = seq(from = range[1], to = range[2], length.out = length)
@@ -80,7 +80,7 @@ nn_effect = function(X, ind, W, q, val = rep(0, ncol(X)), length = 100, range = 
   id = c(1:ncol(X_val), ind - 0.5)
   X_new = new[, order(id)]
 
-  pred = nn_pred(X_new, W, q)
+  pred = nn_pred(X_new, W, q) + rnorm(length,0,0)
 
   return(list('x' = X_ind, 'pred' = pred))
 }

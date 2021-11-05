@@ -4,7 +4,16 @@
 \alias{nn_effect}
 \title{Effect of input}
 \usage{
-nn_effect(X, ind, W, q, val = rep(0, ncol(X)), length = 100, range = c(-3, 3))
+nn_effect(
+  X,
+  ind,
+  W,
+  q,
+  val = rep(0, ncol(X)),
+  length = 100,
+  range = c(-3, 3),
+  sigma = 0
+)
 }
 \arguments{
 \item{X}{input matrix}

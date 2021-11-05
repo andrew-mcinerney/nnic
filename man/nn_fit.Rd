@@ -2,7 +2,7 @@
 % Please edit documentation in R/nn_functions.R
 \name{nn_fit}
 \alias{nn_fit}
-\title{Neural network fitting function using optimx}
+\title{Neural network fitting function using optim}
 \usage{
 nn_fit(X, Y, W, q)
 }
@@ -19,5 +19,5 @@ nn_fit(X, Y, W, q)
 Optimal weight vector
 }
 \description{
-Neural network fitting function using optimx
+Neural network fitting function using optim
 }
