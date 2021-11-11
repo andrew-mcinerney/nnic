@@ -36,9 +36,9 @@ nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', un
         weight_matrix_init = matrix(runif(n_iter*k, min = -unif, max = unif),
                                     ncol = k)
       }else{
-        weight_matrix_init = cbind(weight_matrix[, c(1:((q - 1)*(p + 1)))],
+        weight_matrix_init = cbind(matrix(weight_matrix[, c(1:((q - 1)*(p + 1)))], byrow = T, nrow = n_iter),
                                    matrix(runif(n_iter*(p + 1), min = -unif, max = unif), ncol = (p + 1)),
-                                   weight_matrix[, c(((q - 1)*(p + 1) + 1):((q - 1)*(p + 1) + q))],
+                                   matrix(weight_matrix[, c(((q - 1)*(p + 1) + 1):((q - 1)*(p + 1) + q))], byrow = T, nrow = n_iter),
                                    matrix(runif(n_iter, min = -unif, max = unif), ncol = 1))
       }
 
