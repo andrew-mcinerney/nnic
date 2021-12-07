@@ -52,14 +52,14 @@ remove_unit = function(W, dataX, Y, q, inf_crit = 'BIC'){
 }
 
 
-#'Compile to function to compare weights
+#'Function to rearrange weights due to weight space symmetries
 #' @export
-weight_recover = function(W_true, W_pred, q, k){
-  true  = cbind(matrix(W_true[1:(q*(k + 1))], byrow=T, ncol=(k + 1)), W_true[((k + 1)*h + 2):((k + 1)*h + h + 1)])
-  pred  = cbind(matrix(W_pred[1:(q*(k + 1))], byrow=T, ncol=(k + 1)), W_pred[((k + 1)*h + 2):((k + 1)*h + h + 1)])
+weight_recover = function(W_true, W_pred, p, q){
+  true  = cbind(matrix(W_true[1:(q*(p + 1))], byrow=T, ncol=(p + 1)), W_true[((p + 1)*q + 2):((p + 1)*q + q + 1)])
+  pred  = cbind(matrix(W_pred[1:(q*(p + 1))], byrow=T, ncol=(p + 1)), W_pred[((p + 1)*q + 2):((p + 1)*q + q + 1)])
 
-  bias_t = W_true[q*(k + 1) + 1]
-  bias_p = W_pred[q*(k + 1) + 1]
+  bias_t = W_true[q*(p + 1) + 1]
+  bias_p = W_pred[q*(p + 1) + 1]
 
   mat = matrix(NA, nrow = q, ncol = q*2)
 
@@ -78,14 +78,14 @@ weight_recover = function(W_true, W_pred, q, k){
     }
   }
   predW = pred[order(ind),]
-  predW_vec = c(t(predW[,1:(k + 1)]), bias_p, t(predW[, (k + 2)]))
+  predW_vec = c(t(predW[,1:(p + 1)]), bias_p, t(predW[, (p + 2)]))
   return(predW_vec)
 }
 
 
 #' @export
-my_runif = function(n = 1, unif = 1){
-  x = runif(n, 0.5, unif)
+my_runif = function(n = 1, unif = 1, lower = 0.5){
+  x = runif(n, lower, unif)
   y = sample(c(-1, 1), n, replace=T)
   return(x*y)
 }

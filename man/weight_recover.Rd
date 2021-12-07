@@ -2,10 +2,10 @@
 % Please edit documentation in R/utils.R
 \name{weight_recover}
 \alias{weight_recover}
-\title{Compile to function to compare weights}
+\title{Function to rearrange weights due to weight space symmetries}
 \usage{
-weight_recover(W_true, W_pred, q, k)
+weight_recover(W_true, W_pred, p, q)
 }
 \description{
-Compile to function to compare weights
+Function to rearrange weights due to weight space symmetries
 }
