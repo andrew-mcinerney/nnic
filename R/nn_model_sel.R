@@ -14,7 +14,7 @@
 #' @return Optimal number of hidden units
 #' @export
 nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', unif = 1,
-                        method = 'top_down', plot = F, ...){
+                        method = 'top_down', remove = 'best', plot = F, ...){
 
   df = as.data.frame(cbind(X, Y))
   colnames(df)[ncol(df)] = 'Y'
@@ -87,7 +87,11 @@ nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', un
       }
       W_opt[[q]] = weight_matrix[which.min(inf_crit_matrix[q,]),]
 
-      remove_node = apply(X = weight_matrix, 1, remove_unit, dataX = X, Y = Y, q = q, inf_crit = inf_crit)
+      if(remove == 'best'){
+        remove_node = apply(X = weight_matrix, 1, remove_unit, dataX = X, Y = Y, q = q, inf_crit = inf_crit)
+      }else if(remove == 'random'){
+        remove_node = sample(1:q, size = n_iter, replace = T)
+      }
 
       weight_matrix_r = matrix(NA, nrow = n_iter, ncol = k - p - 2)
 

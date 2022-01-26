@@ -13,6 +13,7 @@ nn_model_sel(
   inf_crit = "BIC",
   unif = 1,
   method = "top_down",
+  remove = "best",
   plot = F,
   ...
 )
