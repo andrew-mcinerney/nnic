@@ -27,6 +27,8 @@ nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', un
 
   W_opt = vector(mode = "list", length = (q_max - q_min + 1))
 
+  converge = matrix(NA, nrow = (q_max - q_min + 1), ncol = n_iter)
+
   if(method == 'bottom_up'){
 
     for(q in q_min:q_max){
@@ -57,6 +59,7 @@ nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', un
         inf_crit_matrix[q, iter] = ifelse(inf_crit == 'AIC', (2*(k+1) - 2*log_likelihood),
                                           ifelse(inf_crit == 'BIC', (log(n)*(k+1) - 2*log_likelihood),
                                                  ifelse(inf_crit == 'AICc', (2*(k+1)*(n/(n - (k+1) - 1)) - 2*log_likelihood),NA)))
+        converge[q, iter] = nn_model$convergence
       }
       W_opt[[q]] = weight_matrix[which.min(inf_crit_matrix[q,]),]
     }
@@ -84,6 +87,7 @@ nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', un
         inf_crit_matrix[q, iter] = ifelse(inf_crit == 'AIC', (2*(k+1) - 2*log_likelihood),
                                           ifelse(inf_crit == 'BIC', (log(n)*(k+1) - 2*log_likelihood),
                                                  ifelse(inf_crit == 'AICc', (2*(k+1)*(n/(n-(k+1)-1)) - 2*log_likelihood),NA)))
+        converge[q, iter] = nn_model$convergence
       }
       W_opt[[q]] = weight_matrix[which.min(inf_crit_matrix[q,]),]
 
@@ -122,8 +126,10 @@ nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', un
   }
 
   return(list('matrix' = inf_crit_matrix, 'min' = apply(inf_crit_matrix, 1, min),
-              'weights_min' = W_opt, 'which_min' = as.numeric(which.min(apply(inf_crit_matrix, 1, min)))))
+              'weights_min' = W_opt, 'which_min' = as.numeric(which.min(apply(inf_crit_matrix, 1, min))),
+              'convergence' = converge))
 }
+
 
 
 #' @export
