@@ -38,9 +38,9 @@ remove_unit = function(W, dataX, Y, q, inf_crit = 'BIC'){
       SSE = sum((y_hat - Y)^2)
       sigma2 = SSE/n
       log_likelihood = (-n/2)*log(2*pi*sigma2) - SSE/(2*sigma2)
-      influence[j] = ifelse(inf_crit == 'BIC', -2*log_likelihood + log(n)*(k+1),
-                            ifelse(inf_crit == 'AIC', -2*log_likelihood + 2*(k+1),
-                                   ifelse(inf_crit == 'AICc', -2*log_likelihood + 2*(k+1)*(n/(n - (k+1) - 1)), NA)))
+      influence[j] = ifelse(inf_crit == 'BIC', -2*log_likelihood + log(n)*(k+1-p-2),
+                            ifelse(inf_crit == 'AIC', -2*log_likelihood + 2*(k+1-p-2),
+                                   ifelse(inf_crit == 'AICc', -2*log_likelihood + 2*(k+1)*(n/(n - (k+1-p-2) - 1)), NA)))
     }
 
 
