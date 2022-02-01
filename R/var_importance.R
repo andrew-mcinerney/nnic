@@ -12,20 +12,20 @@
 #' @export
 var_imp = function(X, Y, ind, n_iter, W, q, unif = 1){
 
-  df = as.data.frame(cbind(X[,-i], Y))
+  df = as.data.frame(cbind(X[,-ind], Y)) # create dataframe without ind column
   colnames(df)[ncol(df)] = 'Y'
   n = nrow(X)
-  inf_crit_vec = rep(NA, n_iter)
+  inf_crit_vec = rep(NA, n_iter) # vector to store BIC for each iteration
 
   k = (ncol(X))*q + (q + 1)
-  remove_vec = rep(NA, q)
+  remove_vec = rep(NA, q) # stores which weights to set to zero for the input unit ind
   for(j in 1:q){
     remove_vec[j] = (j - 1)*(ncol(X) + 1) + 1 + ind
   }
 
-  W_new = W[-remove_vec]
+  W_new = W[-remove_vec] # removes weights for ind
 
-  weight_matrix_init = matrix(rep(W_new, n), nrow = n, byrow = T) + runif(k*n, min = -unif/2, max = unif/2)
+  weight_matrix_init = matrix(rep(W_new, n_iter), nrow = n_iter, byrow = T) + runif(k*n_iter, min = -unif/2, max = unif/2)
 
   weight_matrix = matrix(rep(NA,n*k), ncol = k)
 
@@ -35,18 +35,18 @@ var_imp = function(X, Y, ind, n_iter, W, q, unif = 1){
     nn_model =  nnet::nnet(Y~., data = df, size = q, trace = F, linout = T, Wts = weight_matrix_init[i,])
     weight_matrix[i,] = nn_model$wts
 
-    SSE = sum((df$Y - nn_model$fitted.values)^2)
-    sigma2 = SSE/n
-    log_likelihood[i] = (-n/2)*log(2*pi*sigma2) - SSE/(2*sigma2)
-    inf_crit_vec[i] = log(n)*k - 2*log_likelihood[i]
+    RSS = nn_model$value
+    sigma2 = RSS/n
+    log_likelihood[i] = (-n/2)*log(2*pi*sigma2) - RSS/(2*sigma2)
+    inf_crit_vec[i] = log(n)*(k + 1) - 2*log_likelihood[i]
   }
 
-  full_model = nn_pred(X, W, q)
+  full_model = nnic::nn_pred(X, W, q)
   k_full = (ncol(X) + 1)*q + (q + 1)
-  SSE = sum((df$Y - full_model)^2)
-  sigma2 = SSE/n
-  log_likelihood_full = (-n/2)*log(2*pi*sigma2) - SSE/(2*sigma2)
-  inf_crit_full = log(n)*k_full - 2*log_likelihood_full
+  RSS = sum((df$Y - full_model)^2)
+  sigma2 = RSS/n
+  log_likelihood_full = (-n/2)*log(2*pi*sigma2) - RSS/(2*sigma2)
+  inf_crit_full = log(n)*(k_full + 1) - 2*log_likelihood_full
 
   likelihood_ratio = -2*(max(log_likelihood) - log_likelihood_full)
   deg_freedom = k_full - k
