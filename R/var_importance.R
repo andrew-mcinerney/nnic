@@ -10,7 +10,7 @@
 #' @param unif uniform distribution
 #' @return Variable importance
 #' @export
-var_imp = function(X, Y, ind, n_iter, W, q, unif = 1){
+var_imp = function(X, Y, ind, n_iter, W, q, unif = 1, ...){
 
   df = as.data.frame(cbind(X[,-ind], Y)) # create dataframe without ind column
   colnames(df)[ncol(df)] = 'Y'
@@ -32,7 +32,7 @@ var_imp = function(X, Y, ind, n_iter, W, q, unif = 1){
   log_likelihood = rep(NA, n_iter)
 
   for(i in 1:n_iter){
-    nn_model =  nnet::nnet(Y~., data = df, size = q, trace = F, linout = T, Wts = weight_matrix_init[i,])
+    nn_model =  nnet::nnet(Y~., data = df, size = q, trace = F, linout = T, Wts = weight_matrix_init[i,], ...)
     weight_matrix[i,] = nn_model$wts
 
     RSS = nn_model$value
@@ -55,7 +55,8 @@ var_imp = function(X, Y, ind, n_iter, W, q, unif = 1){
   return(list('inf_crit' = inf_crit_vec, 'inf_crit_min' = min(inf_crit_vec),
               'BIC_full' = inf_crit_full, 'loglik' = max(log_likelihood),
               'loglik_full' = log_likelihood_full, 'df' = deg_freedom,
-              'likelihood_ratio' = likelihood_ratio, 'p_val' = p_value))
+              'likelihood_ratio' = likelihood_ratio, 'p_val' = p_value,
+              'W_opt' = weight_matrix[which.min(inf_crit_vec),]))
 }
 
 #' Effect of input
