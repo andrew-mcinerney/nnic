@@ -86,3 +86,44 @@ nn_effect = function(X, ind, W, q, val = rep(0, ncol(X)), length = 100, range = 
   return(list('x' = X_ind, 'pred' = pred))
 }
 
+
+#' Variable Selection
+#'
+#'
+#' @param X input matrix
+#' @param Y output vector
+#' @param nn output from nn_model_sel function
+#' @param n_iter number of iteration
+#' @return Variable Selection
+#' @export
+nn_variable_sel <- function(X, Y, nn, n_iter, ...){
+  p = ncol(X)
+
+  continue = TRUE
+
+  W_opt = nn$weights_min[[nn$which_min]]
+
+  dropped = c()
+
+  while(continue == TRUE){
+    input_BIC = rep(NA, p) #store BIC with each input unit removed
+    for(i in 1:p){
+      var_imp_nn <- var_imp(X, Y, ind = i, n_iter = n_iter,
+                            W = W_opt,
+                            q = nn$which_min, ...)
+
+      input_BIC[i] <- var_imp_nn$inf_crit_min
+    }
+
+    if(min(input_BIC) <= nn$min[nn$which_min]){
+      X = X[,-which.min(input_BIC)] #drop irrelevant input
+      p = ncol(X)
+      W_opt = var_imp_nn$W_opt
+      dropped = c(dropped, which.min(input_BIC))
+    }else{
+      continue = FALSE
+    }
+  }
+  return(list('X' = X, 'p' = p, 'W_opt' = W_opt, 'dropped' = dropped,
+              'full_BIC' = nn$min[nn$which_min], 'BIC' = min(input_BIC)))
+}
