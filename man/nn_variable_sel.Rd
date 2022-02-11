@@ -4,16 +4,16 @@
 \alias{nn_variable_sel}
 \title{Variable Selection}
 \usage{
-nn_variable_sel(X, Y, nn, n_iter, ...)
+nn_variable_sel(X, Y, n_iter, q = NULL, nn = NULL, unif = 1, ...)
 }
 \arguments{
 \item{X}{input matrix}
 
 \item{Y}{output vector}
 
-\item{nn}{output from nn_model_sel function}
-
 \item{n_iter}{number of iteration}
+
+\item{nn}{output from nn_model_sel function}
 }
 \value{
 Variable Selection

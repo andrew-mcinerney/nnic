@@ -96,18 +96,45 @@ nn_effect = function(X, ind, W, q, val = rep(0, ncol(X)), length = 100, range = 
 #' @param n_iter number of iteration
 #' @return Variable Selection
 #' @export
-nn_variable_sel <- function(X, Y, nn, n_iter, ...){
+nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 1, ...){
   p <- ncol(X)
 
   continue <- TRUE
 
-  W_opt <- nn$weights_min[[nn$which_min]]
+  if (!is.null(nn)){
+    W_opt <- nn$weights_min[[nn$which_min]]
+    min_BIC <- nn$min[nn$which_min]
+    full_BIC <- min_BIC
+    q <- nn$which_min
+  } else if (!is.null(q)){
+    df = as.data.frame(cbind(X, Y))
+    colnames(df)[ncol(df)] = 'Y'
+
+    k <- (p+2)*q + 1
+    W <- matrix(runif(n_iter*k, min = -unif, max = unif),
+                ncol = k)
+    weight_matrix <- matrix(rep(NA, n_iter*k),ncol=k)
+    inf_crit_vec <- rep(NA, n_iter)
+
+    for(iter in 1:n_iter){
+      nn_model <-  nnet::nnet(Y~., data = df, size = q, trace = F, linout = T,
+                              Wts = W[iter,], ...)
+      weight_matrix[iter,] <- nn_model$wts
+
+      sigma2 = nn_model$value/n
+      log_likelihood = (-n/2)*log(2*pi*sigma2) - nn_model$value/(2*sigma2)
+      inf_crit_vec[iter] = (log(n)*(k+1) - 2*log_likelihood)
+    }
+    W_opt <- weight_matrix[which.min(inf_crit_vec),]
+    min_BIC <- min(inf_crit_vec)
+    full_BIC <- min_BIC
+  } else {
+    stop('No inital network or hidden layer size supplied')
+  }
 
   colnames(X) = 1:p
 
   X_full <- X
-
-  min_BIC <- nn$min[nn$which_min]
 
   dropped <- c()
 
@@ -116,12 +143,12 @@ nn_variable_sel <- function(X, Y, nn, n_iter, ...){
     for(i in 1:p){
       var_imp_nn <- var_imp(X, Y, ind = i, n_iter = n_iter,
                             W = W_opt,
-                            q = nn$which_min, ...)
+                            q = q, ...)
 
       input_BIC[i] <- var_imp_nn$inf_crit_min
     }
 
-    if(min(input_BIC) <= nn$min[nn$which_min]){
+    if(min(input_BIC) <= min_BIC){
       X = X[,-which.min(input_BIC)] #drop irrelevant input
       p = ncol(X)
       W_opt = var_imp_nn$W_opt
@@ -132,5 +159,5 @@ nn_variable_sel <- function(X, Y, nn, n_iter, ...){
     }
   }
   return(list('X' = X, 'p' = p, 'W_opt' = W_opt, 'dropped' = dropped,
-              'full_BIC' = nn$min[nn$which_min], 'BIC' = min_BIC))
+              'full_BIC' = full_BIC, 'BIC' = min_BIC))
 }
