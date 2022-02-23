@@ -99,6 +99,8 @@ nn_effect = function(X, ind, W, q, val = rep(0, ncol(X)), length = 100, range = 
 nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 1, ...){
   p <- ncol(X)
 
+  n <- nrow(X)
+
   continue <- TRUE
 
   if (!is.null(nn)){

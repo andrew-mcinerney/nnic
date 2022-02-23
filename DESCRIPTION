@@ -18,6 +18,6 @@ LazyData: true
 URL: https://github.com/hadley/dplyr
 BugReports: https://github.com/hadley/dplyr/issues
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Imports: 
         nnet, optimx
