@@ -4,7 +4,7 @@
 \alias{nn_variable_sel}
 \title{Variable Selection}
 \usage{
-nn_variable_sel(X, Y, n_iter, q = NULL, nn = NULL, unif = 1, ...)
+nn_variable_sel(X, Y, n_iter, q = NULL, nn = NULL, unif = 3, ...)
 }
 \arguments{
 \item{X}{input matrix}
