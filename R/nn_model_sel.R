@@ -13,17 +13,19 @@
 #' @param method Procedure
 #' @return Optimal number of hidden units
 #' @export
-nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', unif = 1,
+# nn_model_sel, but takes nn_var_sel as input
+
+nn_model_sel = function(X, Y, q_max, q_min = 1, W = NULL, n_iter = 1, inf_crit = 'BIC', unif = 3,
                         method = 'top_down', remove = 'best', plot = F, ...){
 
-  df = as.data.frame(cbind(X, Y))
-  colnames(df)[ncol(df)] = 'Y'
+  df <- as.data.frame(cbind(X, Y)) #create dataframe of X and Y
+  colnames(df)[ncol(df)] <- 'Y'
 
-  inf_crit_matrix <- matrix(NA, nrow = (q_max - q_min + 1), ncol = n_iter)
+  inf_crit_matrix <- matrix(NA, nrow = (q_max - q_min + 1), ncol = n_iter) #store information criteria
   rownames(inf_crit_matrix) <- as.character(q_min:q_max)
 
-  n = nrow(X)
-  p = ncol(X)
+  n = nrow(X) # sample size
+  p = ncol(X) # number of covariates
 
   W_opt = vector(mode = "list", length = (q_max - q_min + 1))
 
@@ -68,10 +70,14 @@ nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', un
     for(q in q_max:q_min){
       k = (p + 1)*q + (q + 1)
 
-      if(q == q_max){
-        weight_matrix_init = matrix(runif(n_iter*k, min = -unif, max = unif), ncol = k)
-      }else{
-        weight_matrix_init = weight_matrix_r
+      if (q == q_max & is.null(W)){
+        weight_matrix_init <- matrix(runif(n_iter*k, min = -unif, max = unif),
+                                     ncol = k)
+      } else if (q == q_max & !is.null(W)){
+        weight_matrix_init <- matrix(rep(W, n_iter), nrow = n_iter, byrow = T) +
+          runif(k*n_iter, min = -unif/2, max = unif/2)
+      } else {
+        weight_matrix_init <- weight_matrix_r
       }
 
       weight_matrix = matrix(rep(NA, n_iter*k), ncol = k)
@@ -127,6 +133,7 @@ nn_model_sel = function(X, Y, q_max, q_min = 1, n_iter = 1, inf_crit = 'BIC', un
 
   return(list('matrix' = inf_crit_matrix, 'min' = apply(inf_crit_matrix, 1, min),
               'weights_min' = W_opt, 'which_min' = as.numeric(which.min(apply(inf_crit_matrix, 1, min))),
+              "W_opt" = W_opt[[as.numeric(which.min(apply(inf_crit_matrix, 1, min)))]],
               'convergence' = converge))
 }
 
