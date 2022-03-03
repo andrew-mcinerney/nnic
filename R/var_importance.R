@@ -156,27 +156,41 @@ nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 3, ...){
 
   while(continue == TRUE){
     input_BIC = rep(NA, p) #store BIC with each input unit removed
+    var_imp_nn <- vector(mode = 'list', length = p)
     for(i in 1:p){
-      var_imp_nn <- var_imp(X, Y, ind = i, n_iter = n_iter, W = W_opt,
-                            W_mat = W_opt_mat,
-                            q = q, ...)
+      var_imp_nn[[i]] <- var_imp(as.matrix(X), Y, ind = i, n_iter = n_iter, W = W_opt,
+                                 W_mat = W_opt_mat,
+                                 q = q, ...)
 
-      input_BIC[i] <- var_imp_nn$inf_crit_min
+      input_BIC[i] <- var_imp_nn[[i]]$inf_crit_min
     }
 
-    if(min(input_BIC) <= min_BIC){
+    if(min(input_BIC) <= min_BIC & p > 2){
       X = X[,-which.min(input_BIC)] #drop irrelevant input
-      p = ncol(X)
+      p = ncol(as.matrix(X))
       k = (p + 2)*q + 1
 
-      W_opt = var_imp_nn$W_opt
+      W_opt = var_imp_nn[[which.min(input_BIC)]]$W_opt
       W_opt_mat <- matrix(rep(W_opt, n_iter), nrow = n_iter, byrow = T) +
         runif(k*n_iter, min = -unif/2, max = unif/2)
 
       dropped <- colnames(X_full)[!colnames(X_full) %in% colnames(X)]
       min_BIC <- min(input_BIC)
-    }else{
-      continue = FALSE
+    } else if (min(input_BIC) <= min_BIC & p <= 2 & p > 1){
+      col_names <- colnames(X)[-which.min(input_BIC)] # store column name as X will become vector
+      X = X[,-which.min(input_BIC)] #drop irrelevant input
+      p = ncol(as.matrix(X))
+      k = (p + 2)*q + 1
+
+      W_opt = var_imp_nn[[which.min(input_BIC)]]$W_opt
+      W_opt_mat <- matrix(rep(W_opt, n_iter), nrow = n_iter, byrow = T) +
+        runif(k*n_iter, min = -unif/2, max = unif/2)
+
+      dropped <- colnames(X_full)[!colnames(X_full) %in% col_names]
+      min_BIC <- min(input_BIC)
+      continue <- FALSE
+    } else{
+      continue <- FALSE
     }
   }
   return(list('X' = X, 'p' = p, 'W_opt' = W_opt, 'dropped' = dropped,
