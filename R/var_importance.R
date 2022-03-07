@@ -142,6 +142,8 @@ nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 3, ...){
       inf_crit_vec[iter] = (log(n)*(k+1) - 2*log_likelihood)
     }
     W_opt <- weight_matrix[which.min(inf_crit_vec),]
+    W_opt_mat <- matrix(rep(W_opt, n_iter), nrow = n_iter, byrow = T) +
+      runif(k*n_iter, min = -unif/2, max = unif/2)
     min_BIC <- min(inf_crit_vec)
     full_BIC <- min_BIC
   } else {
