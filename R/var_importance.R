@@ -114,7 +114,14 @@ nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 3, ...){
 
   if (!is.null(nn)){
     W_opt <- nn$W_opt
-    min_BIC <- nn$min[nn$which_min]
+
+    # if statement to fix error when using local method and uses name not index
+    if (is.null(nn$type)) {
+      min_BIC <- nn$min[nn$which_min]
+    } else if (nn$type == 'local') {
+      min_BIC <- nn$min[as.character(nn$which_min)]
+    }
+
     full_BIC <- min_BIC
     q <- nn$which_min
     k = (p + 2)*q + 1
