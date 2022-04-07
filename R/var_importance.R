@@ -10,7 +10,8 @@
 #' @param unif uniform distribution
 #' @return Variable importance
 #' @export
-var_imp = function(X, Y, ind, n_iter, W = NULL, W_mat = NULL, q, unif = 1, ...){
+var_imp = function(X, Y, ind, n_iter, W = NULL, W_mat = NULL, q, unif = 1,
+                   inf_crit = 'BIC', ...){
 
   df = as.data.frame(cbind(X[,-ind], Y)) # create dataframe without ind column
   colnames(df)[ncol(df)] = 'Y'
@@ -47,7 +48,9 @@ var_imp = function(X, Y, ind, n_iter, W = NULL, W_mat = NULL, q, unif = 1, ...){
     RSS = nn_model$value
     sigma2 = RSS/n
     log_likelihood[i] = (-n/2)*log(2*pi*sigma2) - RSS/(2*sigma2)
-    inf_crit_vec[i] = log(n)*(k + 1) - 2*log_likelihood[i]
+    inf_crit_vec[i] = ifelse(inf_crit == 'AIC', (2*(k+1) - 2*log_likelihood[i]),
+                             ifelse(inf_crit == 'BIC', (log(n)*(k+1) - 2*log_likelihood[i]),
+                                    ifelse(inf_crit == 'AICc', (2*(k+1)*(n/(n-(k+1)-1)) - 2*log_likelihood[i]),NA)))
   }
 
   full_model = nnic::nn_pred(X, W, q)
@@ -55,7 +58,9 @@ var_imp = function(X, Y, ind, n_iter, W = NULL, W_mat = NULL, q, unif = 1, ...){
   RSS = sum((df$Y - full_model)^2)
   sigma2 = RSS/n
   log_likelihood_full = (-n/2)*log(2*pi*sigma2) - RSS/(2*sigma2)
-  inf_crit_full = log(n)*(k_full + 1) - 2*log_likelihood_full
+  inf_crit_full = ifelse(inf_crit == 'AIC', (2*(k_full+1) - 2*log_likelihood_full),
+                         ifelse(inf_crit == 'BIC', (log(n)*(k_full+1) - 2*log_likelihood_full),
+                                ifelse(inf_crit == 'AICc', (2*(k_full+1)*(n/(n-(k_full+1)-1)) - 2*log_likelihood_full),NA)))
 
   likelihood_ratio = -2*(max(log_likelihood) - log_likelihood_full)
   deg_freedom = k_full - k
@@ -105,7 +110,8 @@ nn_effect = function(X, ind, W, q, val = rep(0, ncol(X)), length = 100, range = 
 #' @param n_iter number of iteration
 #' @return Variable Selection
 #' @export
-nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 3, ...){
+nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 3,
+                            inf_crit = 'BIC', ...){
   p <- ncol(X)
 
   n <- nrow(X)
@@ -146,7 +152,9 @@ nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 3, ...){
 
       sigma2 = nn_model$value/n
       log_likelihood = (-n/2)*log(2*pi*sigma2) - nn_model$value/(2*sigma2)
-      inf_crit_vec[iter] = (log(n)*(k+1) - 2*log_likelihood)
+      inf_crit_vec[iter] = ifelse(inf_crit == 'AIC', (2*(k+1) - 2*log_likelihood),
+                                  ifelse(inf_crit == 'BIC', (log(n)*(k+1) - 2*log_likelihood),
+                                         ifelse(inf_crit == 'AICc', (2*(k+1)*(n/(n-(k+1)-1)) - 2*log_likelihood),NA)))
     }
     W_opt <- weight_matrix[which.min(inf_crit_vec),]
     W_opt_mat <- matrix(rep(W_opt, n_iter), nrow = n_iter, byrow = T) +
@@ -169,7 +177,7 @@ nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 3, ...){
     for(i in 1:p){
       var_imp_nn[[i]] <- var_imp(as.matrix(X), Y, ind = i, n_iter = n_iter, W = W_opt,
                                  W_mat = W_opt_mat,
-                                 q = q, ...)
+                                 q = q, inf_crit = inf_crit, ...)
 
       input_BIC[i] <- var_imp_nn[[i]]$inf_crit_min
     }

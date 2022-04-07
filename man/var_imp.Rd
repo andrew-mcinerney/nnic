@@ -4,7 +4,18 @@
 \alias{var_imp}
 \title{Variable Importance}
 \usage{
-var_imp(X, Y, ind, n_iter, W = NULL, W_mat = NULL, q, unif = 1, ...)
+var_imp(
+  X,
+  Y,
+  ind,
+  n_iter,
+  W = NULL,
+  W_mat = NULL,
+  q,
+  unif = 1,
+  inf_crit = "BIC",
+  ...
+)
 }
 \arguments{
 \item{X}{input matrix}
