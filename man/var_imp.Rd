@@ -12,8 +12,9 @@ var_imp(
   W = NULL,
   W_mat = NULL,
   q,
-  unif = 1,
+  unif = 3,
   inf_crit = "BIC",
+  dev = unif/2,
   ...
 )
 }

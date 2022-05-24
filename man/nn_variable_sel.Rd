@@ -12,6 +12,7 @@ nn_variable_sel(
   nn = NULL,
   unif = 3,
   inf_crit = "BIC",
+  dev = unif/2,
   ...
 )
 }

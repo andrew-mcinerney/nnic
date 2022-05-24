@@ -16,6 +16,7 @@ nn_model_sel(
   method = "top_down",
   remove = "best",
   plot = F,
+  dev = unif/2,
   ...
 )
 }

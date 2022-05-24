@@ -10,8 +10,8 @@
 #' @param unif uniform distribution
 #' @return Variable importance
 #' @export
-var_imp = function(X, Y, ind, n_iter, W = NULL, W_mat = NULL, q, unif = 1,
-                   inf_crit = 'BIC', ...){
+var_imp = function(X, Y, ind, n_iter, W = NULL, W_mat = NULL, q, unif = 3,
+                   inf_crit = 'BIC', dev = unif/2, ...){
 
   df = as.data.frame(cbind(X[,-ind], Y)) # create dataframe without ind column
   colnames(df)[ncol(df)] = 'Y'
@@ -32,7 +32,7 @@ var_imp = function(X, Y, ind, n_iter, W = NULL, W_mat = NULL, q, unif = 1,
   } else if (!is.null(W)){
     W_new = W[-remove_vec] # removes weights for ind
 
-    weight_matrix_init = matrix(rep(W_new, n_iter), nrow = n_iter, byrow = T) + runif(k*n_iter, min = -unif/2, max = unif/2)
+    weight_matrix_init = matrix(rep(W_new, n_iter), nrow = n_iter, byrow = T) + runif(k*n_iter, min = -dev, max = dev)
   } else {
     stop("Either W or W_mat must not be null")
   }
@@ -111,7 +111,7 @@ nn_effect = function(X, ind, W, q, val = rep(0, ncol(X)), length = 100, range = 
 #' @return Variable Selection
 #' @export
 nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 3,
-                            inf_crit = 'BIC', ...){
+                            inf_crit = 'BIC', dev = unif/2, ...){
   p <- ncol(X)
 
   n <- nrow(X)
@@ -133,7 +133,7 @@ nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 3,
     k = (p + 2)*q + 1
 
     W_opt_mat <- matrix(rep(W_opt, n_iter), nrow = n_iter, byrow = T) +
-      runif(k*n_iter, min = -unif/2, max = unif/2)
+      runif(k*n_iter, min = -dev, max = dev)
 
   } else if (!is.null(q)){
     df = as.data.frame(cbind(X, Y))
@@ -158,7 +158,7 @@ nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 3,
     }
     W_opt <- weight_matrix[which.min(inf_crit_vec),]
     W_opt_mat <- matrix(rep(W_opt, n_iter), nrow = n_iter, byrow = T) +
-      runif(k*n_iter, min = -unif/2, max = unif/2)
+      runif(k*n_iter, min = -dev, max = dev)
     min_BIC <- min(inf_crit_vec)
     full_BIC <- min_BIC
   } else {
@@ -177,7 +177,9 @@ nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 3,
     for(i in 1:p){
       var_imp_nn[[i]] <- var_imp(as.matrix(X), Y, ind = i, n_iter = n_iter, W = W_opt,
                                  W_mat = W_opt_mat,
-                                 q = q, inf_crit = inf_crit, ...)
+                                 q = q, inf_crit = inf_crit, unif = unif,
+                                 dev = dev,
+                                 ...)
 
       input_BIC[i] <- var_imp_nn[[i]]$inf_crit_min
     }
@@ -189,7 +191,7 @@ nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 3,
 
       W_opt = var_imp_nn[[which.min(input_BIC)]]$W_opt
       W_opt_mat <- matrix(rep(W_opt, n_iter), nrow = n_iter, byrow = T) +
-        runif(k*n_iter, min = -unif/2, max = unif/2)
+        runif(k*n_iter, min = -dev, max = dev)
 
       dropped <- colnames(X_full)[!colnames(X_full) %in% colnames(X)]
       min_BIC <- min(input_BIC)
@@ -201,7 +203,7 @@ nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 3,
 
       W_opt = var_imp_nn[[which.min(input_BIC)]]$W_opt
       W_opt_mat <- matrix(rep(W_opt, n_iter), nrow = n_iter, byrow = T) +
-        runif(k*n_iter, min = -unif/2, max = unif/2)
+        runif(k*n_iter, min = -dev, max = dev)
 
       dropped <- colnames(X_full)[!colnames(X_full) %in% col_names]
       min_BIC <- min(input_BIC)

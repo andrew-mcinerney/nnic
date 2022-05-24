@@ -16,7 +16,7 @@
 # nn_model_sel, but takes nn_var_sel as input
 
 nn_model_sel = function(X, Y, q_max, q_min = 1, W = NULL, n_iter = 1, inf_crit = 'BIC', unif = 3,
-                        method = 'top_down', remove = 'best', plot = F, ...){
+                        method = 'top_down', remove = 'best', plot = F, dev = unif/2, ...){
 
   df <- as.data.frame(cbind(X, Y)) #create dataframe of X and Y
   colnames(df)[ncol(df)] <- 'Y'
@@ -75,7 +75,7 @@ nn_model_sel = function(X, Y, q_max, q_min = 1, W = NULL, n_iter = 1, inf_crit =
                                      ncol = k)
       } else if (q == q_max & !is.null(W)){
         weight_matrix_init <- matrix(rep(W, n_iter), nrow = n_iter, byrow = T) +
-          runif(k*n_iter, min = -unif/2, max = unif/2)
+          runif(k*n_iter, min = -dev, max = dev)
       } else {
         weight_matrix_init <- weight_matrix_r
       }
