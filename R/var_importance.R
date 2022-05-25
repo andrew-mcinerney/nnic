@@ -25,7 +25,7 @@ var_imp = function(X, Y, ind, n_iter, W = NULL, W_mat = NULL, q, unif = 3,
   }
 
   if (!is.null(W_mat)){
-    W_mat_new = W_mat[, -remove_vec] # removes weights for ind
+    W_mat_new = matrix(W_mat[, -remove_vec], nrow = n_iter) # removes weights for ind
 
     weight_matrix_init = W_mat_new
 
@@ -72,6 +72,7 @@ var_imp = function(X, Y, ind, n_iter, W = NULL, W_mat = NULL, q, unif = 3,
               'likelihood_ratio' = likelihood_ratio, 'p_val' = p_value,
               'W_opt' = weight_matrix[which.min(inf_crit_vec),]))
 }
+
 
 #' Effect of input
 #'
@@ -175,7 +176,7 @@ nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 3,
     input_BIC = rep(NA, p) #store BIC with each input unit removed
     var_imp_nn <- vector(mode = 'list', length = p)
     for(i in 1:p){
-      var_imp_nn[[i]] <- var_imp(as.matrix(X), Y, ind = i, n_iter = n_iter, W = W_opt,
+      var_imp_nn[[i]] <- var_imp(as.matrix(X), Y, ind = i, n_iter = n_iter,
                                  W_mat = W_opt_mat,
                                  q = q, inf_crit = inf_crit, unif = unif,
                                  dev = dev,
