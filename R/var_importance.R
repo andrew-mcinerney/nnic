@@ -176,7 +176,7 @@ nn_variable_sel <- function(X, Y, n_iter, q = NULL, nn = NULL, unif = 3,
     input_BIC = rep(NA, p) #store BIC with each input unit removed
     var_imp_nn <- vector(mode = 'list', length = p)
     for(i in 1:p){
-      var_imp_nn[[i]] <- var_imp(as.matrix(X), Y, ind = i, n_iter = n_iter,
+      var_imp_nn[[i]] <- var_imp(as.matrix(X), Y, ind = i, n_iter = n_iter, W = W_opt,
                                  W_mat = W_opt_mat,
                                  q = q, inf_crit = inf_crit, unif = unif,
                                  dev = dev,
