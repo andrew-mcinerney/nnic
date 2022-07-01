@@ -1,16 +1,14 @@
-Package: nnic
-Title: Statistical-modelling approach to Neural Networks
+Package: statnn
+Title: Statistical-modelling approach to Neural Network 
 Version: 0.0.0.9000
 Authors@R: 
     person("Andrew",
            "McInerney",
            role = c("aut", "cre"),
            email = "andrew.mcinerney@ul.ie",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           comment = c(ORCID = "0000-0002-2348-2159"))
 Description: Provides various functions that allow for a statistical-modelling
-    approach to neural networks. This includes the use of the top-down and
-    bottom-up model selection methods, profile likelihood functions for network
-    weights, and variable importance.
+    approach to neural network.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to
     pick a license
 Encoding: UTF-8
